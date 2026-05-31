@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="Despesas.Application/Despesas.Application.csproj" />
+  <Project Path="Despesas.Domain/Despesas.Domain.csproj" />
+  <Project Path="Despesas.Gateway/Despesas.Gateway.csproj" />
+  <Project Path="Despesas.Infrastructure/Despesas.Infrastructure.csproj" />
+  <Project Path="Despesas.Worker/Despesas.Worker.csproj" />
+</Solution>
