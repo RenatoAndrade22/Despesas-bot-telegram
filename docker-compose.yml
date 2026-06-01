@@ -7,7 +7,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: despesas_db
     ports:
       - "5432:5432"
@@ -19,11 +19,52 @@ services:
     container_name: rabbitmq_despesas
     restart: unless-stopped
     ports:
-      - "5672:5672"   # Porta de comunicação com o C#
-      - "15672:15672" # Porta do painel visual web
+      - "5672:5672"   
+      - "15672:15672" 
     environment:
       RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin123
+      RABBITMQ_DEFAULT_PASS: ${RABBIT_PASSWORD}
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Despesas.Gateway/Dockerfile
+    container_name: despesas_gateway
+    restart: always
+    ports:
+      - "80:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Mapeamento do appsettings.json usando duplo underline (__)
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=despesas_db;Username=postgres;Password=${DB_PASSWORD}
+      - TelegramSettings__SenhaRegistro=${TELEGRAM_SENHA}
+      - TelegramSettings__BotToken=${TELEGRAM_BOT_TOKEN}
+      - RabbitMqSettings__HostName=rabbitmq
+      - RabbitMqSettings__UserName=admin
+      - RabbitMqSettings__Password=${RABBIT_PASSWORD}
+    depends_on:
+      - postgres
+      - rabbitmq
+
+  worker:
+    build:
+      context: .
+      dockerfile: Despesas.Worker/Dockerfile
+    container_name: despesas_worker
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Mapeamento do appsettings.json usando duplo underline (__)
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=despesas_db;Username=postgres;Password=${DB_PASSWORD}
+      - RabbitMq__Host=rabbitmq
+      - RabbitMq__User=admin
+      - RabbitMq__Password=${RABBIT_PASSWORD}
+      - GroqSettings__ApiKey=${GROQ_API_KEY}
+      - GroqSettings__Model=llama-3.3-70b-versatile
+      - TelegramSettings__BotToken=${TELEGRAM_BOT_TOKEN}
+    depends_on:
+      - postgres
+      - rabbitmq
 
 volumes:
   pgdata:
