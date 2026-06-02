@@ -19,4 +19,4 @@ jobs:
         script: |
           cd /home/ubuntu/Despesas-bot-telegram
           git pull origin master
-          docker-compose up -d --build
+          docker compose up -d --build
