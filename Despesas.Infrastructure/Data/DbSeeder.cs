@@ -15,6 +15,7 @@ public static class DbSeeder
         {
             var fornecedoresIniciais = new List<Fornecedor>
             {
+                new Fornecedor { Nome = "Imposto" },
                 new Fornecedor { Nome = "Dentista" },
                 new Fornecedor { Nome = "Dental" },
                 new Fornecedor { Nome = "Protese | Laboratorio" },
